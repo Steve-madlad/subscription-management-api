@@ -1,10 +1,10 @@
-import mongoose from "mongoose";
+import mongoose, { InferSchemaType } from "mongoose";
 
 const subscriptionSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      require: [true, "Subscription name is required"],
+      required: [true, "Subscription name is required"],
       trim: true,
       minlength: 2,
       maxlength: 100,
@@ -12,7 +12,7 @@ const subscriptionSchema = new mongoose.Schema(
     price: {
       type: Number,
       required: [true, "Price is required"],
-      min: [0, "Price must be greater than 0"],
+      min: [1, "Price must be greater than 0"],
     },
     currency: {
       type: String,
@@ -22,6 +22,7 @@ const subscriptionSchema = new mongoose.Schema(
     frequency: {
       type: String,
       enum: ["daily", "weekly", "monthly", "yearly"],
+      required: [true, "Subscription type (frequency) is required"],
     },
     category: {
       type: String,
@@ -95,6 +96,9 @@ subscriptionSchema.pre("save", function (next) {
 
   next();
 });
+
+type SubscriptionType = InferSchemaType<typeof subscriptionSchema>;
+export type SubscriptionDocument = mongoose.Document & SubscriptionType;
 
 const Subscription = mongoose.model("Subscription", subscriptionSchema);
 

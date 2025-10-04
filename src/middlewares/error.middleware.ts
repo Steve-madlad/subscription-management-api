@@ -1,10 +1,15 @@
 import express from "express";
 
-const errorMiddleware = (err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+const errorMiddleware = (
+  err: any,
+  req: express.Request,
+  res: express.Response,
+  next: express.NextFunction
+) => {
   try {
-    let error = {...err}
+    let error = { ...err };
 
-    error.message = err.message
+    error.message = err.message;
 
     console.error(error);
     if (err.name === "CastError") {
@@ -28,10 +33,10 @@ const errorMiddleware = (err: any, req: express.Request, res: express.Response, 
     res.status(error.statusCode || 500).json({
       success: false,
       message: error.message || "Server Error",
-    })
+    });
   } catch (error) {
-    next(error)
+    next(error);
   }
 };
 
-export default errorMiddleware
+export default errorMiddleware;

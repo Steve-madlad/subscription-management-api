@@ -8,6 +8,7 @@ import authRouter from "./routes/auth.routes.js";
 import subscriptionRouter from "./routes/subscription.routes.js";
 import userRouter from "./routes/user.routes.js";
 import arcjetMiddleware from "./middlewares/arcjet.middleware.js";
+import workflowRouter from "./routes/workfolw.routes.js";
 
 const app = express();
 
@@ -21,6 +22,8 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api/v1/auth", authRouter);
+
+app.use("/api/v1/workflows", workflowRouter);
 
 app.use(authorize);
 

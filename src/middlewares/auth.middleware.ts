@@ -20,18 +20,18 @@ const authorize = async (
     if (authorization && authorization.startsWith("Bearer"))
       token = authorization.split(" ")[1];
 
-    // console.log("token", token)
     if (!token) {
       return res.status(401).json({
+        success: false,
         message: "Unauthorized",
       });
     } else {
       const decoded = jwt.verify(token, JWT_SECRET) as CustomJwtPayload;
-      const user = await User.findById(decoded.userId);
+      const user = await User.findById(decoded.userId).select("-password");
 
-      // console.log("user", user);
       if (!user) {
         return res.status(401).json({
+          success: false,
           message: "Unauthorized",
         });
       } else {

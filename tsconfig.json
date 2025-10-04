@@ -12,6 +12,6 @@
     "resolveJsonModule": true,
     "types": ["node"]
   },
-  "include": ["src/**/*.ts", "src/types/express.d.ts", "src/config/env.js"],
+  "include": ["src/**/*.ts", "src/types/express.d.ts"],
   "exclude": ["node_modules", "dist"]
 }

@@ -12,4 +12,5 @@ export const {
   ARCJET_KEY,
   QSTASH_URL,
   QSTASH_TOKEN,
+  EMAIL_PASSWORD,
 } = process.env;

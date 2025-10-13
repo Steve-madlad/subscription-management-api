@@ -81,6 +81,8 @@ export const signUp = async (
       { session }
     );
 
+    const { password: newpassword, ...userWithoutPassword } = newUser[0];
+
     const token = jwt.sign({ userId: newUser[0]._id }, JWT_SECRET, {
       expiresIn: JWT_EXPIRES_IN as jwt.SignOptions["expiresIn"],
     });
@@ -97,7 +99,7 @@ export const signUp = async (
       success: true,
       message: "User created successfully",
       data: {
-        user: newUser[0],
+        user: userWithoutPassword,
         token,
       },
     });
@@ -113,7 +115,7 @@ export const signIn = async (
   res: express.Response,
   next: express.NextFunction
 ) => {
-  try {    
+  try {
     if (!req.body) {
       const error = new AppError("credentials are required", 400);
       throw error;

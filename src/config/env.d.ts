@@ -8,6 +8,7 @@ declare module "../config/env.js" {
   export const ARCJET_KEY: string;
   export const QSTASH_URL: string;
   export const QSTASH_TOKEN: string;
+  export const EMAIL_PASSWORD: string;
 }
 
 export {};

@@ -3,10 +3,11 @@ import { createRequire } from "module";
 const requiree = createRequire(import.meta.url);
 const { serve } = requiree("@upstash/workflow/express");
 
+import dayjs, { type Dayjs } from "dayjs";
 import Subscription, {
   SubscriptionDocument,
 } from "../models/subscription.model.js";
-import dayjs, { type Dayjs } from "dayjs";
+import sendReminderEmail from "../utils/send-reminder-email.js";
 
 const reminders = [10, 7, 5, 2, 1];
 
@@ -38,20 +39,30 @@ export const sendReminders = serve(
         );
       }
 
-      await triggerReminder(context, `reminder ${daysBefore} days before`);
+      await triggerReminder(
+        context,
+        `reminder ${daysBefore} days before`,
+        subscription
+      );
     }
   }
 );
 
+type PartialUser = { name: string; email: string };
+
+export type SubscriptionWithPartialUser = Omit<SubscriptionDocument, "user"> & {
+  user: PartialUser;
+};
+
 const fetchSubscription = async (
   context: WorkflowContext,
   subscriptionId: string
-): Promise<SubscriptionDocument | null> => {
+): Promise<SubscriptionWithPartialUser | null> => {
   return await context.run("get subscription", async () => {
-    return await Subscription.findById(subscriptionId).populate(
+    return (await Subscription.findById(subscriptionId).populate(
       "user",
       "name email"
-    );
+    )) as SubscriptionWithPartialUser | null;
   });
 };
 
@@ -64,8 +75,16 @@ const sleepUntilReminder = async (
   await context.sleepUntil(label, date.toDate());
 };
 
-const triggerReminder = async (context: WorkflowContext, label: string) => {
-  return await context.run(label, () => {
+const triggerReminder = async (
+  context: WorkflowContext,
+  label: string,
+  subscription: SubscriptionWithPartialUser
+) => {
+  return await context.run(label, async () => {
     console.log(`Triggering ${label} subscription end`);
+    await sendReminderEmail({
+      to: subscription.user.email,
+      subscription: subscription,
+    });
   });
 };

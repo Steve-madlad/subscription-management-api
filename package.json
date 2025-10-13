@@ -7,7 +7,7 @@
   "scripts": {
     "build": "tsc",
     "prestart": "npm run build",
-    "start": "node index.js",
+    "start:prod": "node dist/src/index",
     "dev": "nodemon"
   },
   "dependencies": {

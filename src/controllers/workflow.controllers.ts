@@ -2,7 +2,7 @@ import type { WorkflowContext } from "@upstash/workflow";
 // import { createRequire } from "module";
 // const required = createRequire(import.meta.url);
 // const { serve } = required("@upstash/workflow/express");
-import { serve } from "@upstash/workflow/nextjs";
+import { serve } from "@upstash/workflow/express";
 
 import dayjs, { type Dayjs } from "dayjs";
 import Subscription, {

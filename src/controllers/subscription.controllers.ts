@@ -51,21 +51,24 @@ export const createSubscription = async (
       user: (req as any).user._id,
     });
 
-    const { workflowRunId } = await workflowClient.trigger({
-      url: `${SERVER_URL}/api/v1/workflows/subscription/reminder`,
-      body: {
-        subscriptionId: subscription._id,
-      },
-      headers: {
-        "content-type": "application/json",
-      },
-      retries: 0,
-    });
+    console.log(subscription)
+    
+    // const { workflowRunId } = await workflowClient.trigger({
+    //   url: `${SERVER_URL}/api/v1/workflows/subscription/reminder`,
+    //   body: {
+    //     subscriptionId: subscription._id,
+    //   },
+    //   headers: {
+    //     "content-type": "application/json",
+    //   },
+    //   retries: 0,
+    // });
 
     res.status(201).json({
       success: true,
+      message: "Reminders are temporarily out of service.",
       data: subscription,
-      workflowRunId,
+      workflowRunId: null,
     });
   } catch (error) {
     next(error);

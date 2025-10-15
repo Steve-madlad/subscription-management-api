@@ -1,6 +1,6 @@
 import cookieParser from "cookie-parser";
 import express from "express";
-import { PORT } from "./config/env.js";
+import { PORT, SERVER_URL } from "./config/env.js";
 import connectToDatabase from "./database/mongodb.js";
 import authorize from "./middlewares/auth.middleware.js";
 import errorMiddleware from "./middlewares/error.middleware.js";
@@ -33,7 +33,7 @@ app.use("/api/v1/subscriptions", subscriptionRouter);
 app.use(errorMiddleware);
 
 app.listen(PORT, async () => {
-  console.log(`Server is running on port http://localhost:${PORT}`);
+  console.log(`Server is running on port ${SERVER_URL}:${PORT}`);
 
   await connectToDatabase();
 });

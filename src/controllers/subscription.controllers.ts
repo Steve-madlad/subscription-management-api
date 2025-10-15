@@ -1,8 +1,9 @@
 import express from "express";
 import mongoose from "mongoose";
 import * as z from "zod";
-import { SERVER_URL } from "../config/env.js";
-import { workflowClient } from "../config/upstash.js";
+// import { SERVER_URL } from "../config/env.js";
+// import { workflowClient } from "../config/upstash.js";
+// import { PORT } from "../config/env.js";
 import Subscription from "../models/subscription.model.js";
 import { AppError } from "../types/types.js";
 
@@ -54,7 +55,7 @@ export const createSubscription = async (
     console.log(subscription)
     
     // const { workflowRunId } = await workflowClient.trigger({
-    //   url: `${SERVER_URL}/api/v1/workflows/subscription/reminder`,
+      // url: `${SERVER_URL}:${PORT}/api/v1/workflows/subscription/reminder`,
     //   body: {
     //     subscriptionId: subscription._id,
     //   },

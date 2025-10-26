@@ -11,7 +11,9 @@ export const generateEmailTemplate = ({
   subscriptionType: "daily" | "weekly" | "monthly" | "yearly";
   subscriptionPrice: number;
 }) => {
-  const reminders = [10, 7, 5, 2, 1];
+  const reminders = [10, 7, 5, 2, 1, 0];
+
+  console.log("left days", daysLeft);
 
   if (!reminders.includes(daysLeft)) {
     throw new Error(
@@ -22,7 +24,10 @@ export const generateEmailTemplate = ({
   }
 
   let subject = "";
-  if (daysLeft === 1) {
+
+  if (daysLeft === 0) {
+    subject = `⚠️ Your ${subscriptionName} subscription will expire in 24 hours. Don't forget to renew!`;
+  } else if (daysLeft === 1) {
     subject = `⚠️ Your ${subscriptionName} subscription ends tomorrow – Renew now`;
   } else if (daysLeft <= 3) {
     subject = `⏳ Only ${daysLeft} days left to renew your ${subscriptionName} subscription`;
@@ -99,9 +104,9 @@ export const generateEmailTemplate = ({
         <p>Hi ${name},</p>
 
         <p>
-          We wanted to remind you that your <span class="highlight">${subscriptionType}</span> subscription to <span class="highlight">${subscriptionName}</span> will expire in <span class="highlight">${daysLeft} day${
-    daysLeft !== 1 ? "s" : ""
-  }</span>.
+          We wanted to remind you that your <span class="highlight">${subscriptionType}</span> subscription to <span class="highlight">${subscriptionName}</span> will expire in <span class="highlight">${
+    daysLeft == 0 ? "24 hours" : daysLeft
+  } day${daysLeft !== 1 ? "s" : ""}</span>.
         </p>
 
         <p>

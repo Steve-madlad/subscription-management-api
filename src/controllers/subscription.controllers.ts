@@ -1,9 +1,9 @@
 import express from "express";
 import mongoose from "mongoose";
 import * as z from "zod";
-// import { SERVER_URL } from "../config/env.js";
-// import { workflowClient } from "../config/upstash.js";
-// import { PORT } from "../config/env.js";
+import { SERVER_URL } from "../config/env.js";
+import { workflowClient } from "../config/upstash.js";
+import { PORT } from "../config/env.js";
 import Subscription from "../models/subscription.model.js";
 import { AppError } from "../types/types.js";
 
@@ -51,25 +51,23 @@ export const createSubscription = async (
       ...req.body,
       user: (req as any).user._id,
     });
-
-    console.log(subscription)
     
-    // const { workflowRunId } = await workflowClient.trigger({
-      // url: `${SERVER_URL}:${PORT}/api/v1/workflows/subscription/reminder`,
-    //   body: {
-    //     subscriptionId: subscription._id,
-    //   },
-    //   headers: {
-    //     "content-type": "application/json",
-    //   },
-    //   retries: 0,
-    // });
+    const { workflowRunId } = await workflowClient.trigger({
+      url: `${SERVER_URL}:${PORT}/api/v1/workflows/subscription/reminder`,
+      body: {
+        subscriptionId: subscription._id,
+      },
+      headers: {
+        "content-type": "application/json",
+      },
+      retries: 0,
+    });
 
     res.status(201).json({
       success: true,
-      message: "Reminders are temporarily out of service.",
+      message: "subscription created successfully",
       data: subscription,
-      workflowRunId: null,
+      workflowRunId: workflowRunId,
     });
   } catch (error) {
     next(error);

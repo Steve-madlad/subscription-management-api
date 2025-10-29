@@ -147,6 +147,7 @@ export const signIn = async (
 
     const existingUser = await User.findOne({ email });
 
+    
     if (!existingUser) {
       const error = new AppError("Invalid credentials", 401);
       throw error;

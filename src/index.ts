@@ -1,7 +1,6 @@
 import cookieParser from "cookie-parser";
 import express from "express";
 import { PORT, SERVER_URL } from "./config/env.js";
-import connectToDatabase from "./database/mongodb.js";
 import arcjetMiddleware from "./middlewares/arcjet.middleware.js";
 import authorize from "./middlewares/auth.middleware.js";
 import errorMiddleware from "./middlewares/error.middleware.js";
@@ -10,6 +9,7 @@ import subscriptionRouter from "./routes/subscription.routes.js";
 import userRouter from "./routes/user.routes.js";
 import workflowRouter from "./routes/workfolw.routes.js";
 import User from "./models/users.model.js";
+import { connectToDatabase } from "./database/mongodb.js";
 
 const app = express();
 app.use(express.json());
@@ -19,6 +19,11 @@ app.use(arcjetMiddleware);
 
 app.get("/", (req, res) => {
   res.send("Welcome to the subscription management API! Run along now.");
+});
+
+app.use(async (req, res, next) => {
+  await connectToDatabase();
+  next();
 });
 
 app.get("/testget", async (req, res) => {
@@ -43,7 +48,7 @@ app.get("/test", async (req, res) => {
 
 app.get("/db-test", async (req, res) => {
   try {
-    await connectToDatabase();
+    // await connectToDatabase();
 
     // Minimal query to test connectivity
     const count = await User.countDocuments();
@@ -74,7 +79,7 @@ app.use("/api/v1/subscriptions", subscriptionRouter);
 app.use(errorMiddleware);
 
 app.listen(PORT, async () => {
-  console.log(`Server is running on ${SERVER_URL} with port ${PORT}`);
+  console.log(`✅ Server is running on ${SERVER_URL} with port ${PORT}`);
 
-  await connectToDatabase();
+//   await connectToDatabase();
 });

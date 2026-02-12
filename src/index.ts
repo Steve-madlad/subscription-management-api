@@ -33,3 +33,7 @@ app.use("/api/v1/users", userRouter);
 app.use("/api/v1/subscriptions", subscriptionRouter);
 
 app.use(errorMiddleware);
+
+app.listen(PORT, async () => {
+  console.log(`✅ Server is running on ${SERVER_URL} with port ${PORT}`);
+});

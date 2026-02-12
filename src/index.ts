@@ -40,6 +40,30 @@ app.get("/test", async (req, res) => {
   }
 })
 
+
+app.get("/db-test", async (req, res) => {
+  try {
+    await connectToDatabase();
+
+    // Minimal query to test connectivity
+    const count = await User.countDocuments();
+
+    console.log("DB test successful, user count:", count);
+
+    res.json({
+      ok: true,
+      message: "DB connection OK",
+      userCount: count,
+    });
+  } catch (err) {
+    console.error("DB test failed:", err);
+    res.status(500).json({
+      ok: false,
+      error: (err as Error).message,
+    });
+  }
+});
+
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/workflows", workflowRouter);
 app.use(authorize);

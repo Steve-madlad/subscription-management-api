@@ -22,8 +22,6 @@ app.get("/", (req, res) => {
 });
 
 app.get("/testget", async (req, res) => {
-  const users = await User.find().select('-password');
-
   res.send("get works")
 })
 app.get("/test", async (req, res) => {
@@ -34,12 +32,12 @@ app.get("/test", async (req, res) => {
       data: users,
     });
   } catch (error) {
+    console.log({error})
     res.status(500).json({
       success: true,
       data: error,
     });
   }
-
 })
 
 app.use("/api/v1/auth", authRouter);

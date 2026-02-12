@@ -9,6 +9,7 @@ import authRouter from "./routes/auth.routes.js";
 import subscriptionRouter from "./routes/subscription.routes.js";
 import userRouter from "./routes/user.routes.js";
 import workflowRouter from "./routes/workfolw.routes.js";
+import User from "./models/users.model.js";
 
 const app = express();
 app.use(express.json());
@@ -19,6 +20,27 @@ app.use(arcjetMiddleware);
 app.get("/", (req, res) => {
   res.send("Welcome to the subscription management API! Run along now.");
 });
+
+app.get("/testget", async (req, res) => {
+  const users = await User.find().select('-password');
+
+  res.send("get works")
+})
+app.get("/test", async (req, res) => {
+  try {
+    const users = await User.find().select('-password');
+    res.status(200).json({
+      success: true,
+      data: users,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: true,
+      data: error,
+    });
+  }
+
+})
 
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/workflows", workflowRouter);

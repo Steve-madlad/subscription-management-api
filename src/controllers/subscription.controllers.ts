@@ -86,7 +86,7 @@ export const createSubscription = async (
     });
     
     const { workflowRunId } = await workflowClient.trigger({
-      url: `${SERVER_URL}/api/v1/workflows/subscription/reminder`,
+      url: `${SERVER_URL}/workflows/subscription/reminder`,
       body: {
         subscriptionId: subscription._id,
       },

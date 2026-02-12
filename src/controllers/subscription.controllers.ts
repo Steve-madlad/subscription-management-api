@@ -1,11 +1,11 @@
-import express from "express";
+import { NextFunction, Request, Response } from "express";
 import mongoose from "mongoose";
 import * as z from "zod";
 import { SERVER_URL } from "../config/env.js";
 import { workflowClient } from "../config/upstash.js";
-import { PORT } from "../config/env.js";
 import Subscription from "../models/subscription.model.js";
 import { AppError } from "../types/types.js";
+import handleValidationError from "../utils/validation-guard.js";
 
 const updateSubscriptionSchema = z.object({
   name: z.string("Name must be a string").optional(),
@@ -32,14 +32,44 @@ const updateSubscriptionSchema = z.object({
   ),
 });
 
+const createSubscriptionSchema = z.object({
+  name: z.string("Name must be a string"),
+  price: z
+    .number("Price must be a number")
+    .min(1, "Price must be greater than 0"),
+  currency: z.enum(["USD", "ETB"], "Invalid currency option").optional(),
+  frequency: z.enum(
+    ["daily", "weekly", "monthly", "yearly"],
+    "Invalid frequency option"
+  ),
+  category: z.enum(
+    [
+      "sports",
+      "news",
+      "politics",
+      "entertainment",
+      "lifestyle",
+      "technology",
+      "finance",
+      "other",
+    ],
+    "Invalid category option"
+  ),
+  paymentMethod: z.enum(
+    [
+      "card",
+      "debit",
+    ]),
+}).strip();
+
 const cancelSubscriptionSchema = z.object({
   status: z.enum(["active", "cancelled", "expired"], "Invalid status option"),
 });
 
 export const createSubscription = async (
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction
+  req: Request,
+  res: Response,
+  next: NextFunction
 ) => {
   try {
     if (!req.body) {
@@ -47,8 +77,11 @@ export const createSubscription = async (
       throw error;
     }
 
+    const parsed = createSubscriptionSchema.safeParse(req.body);
+    handleValidationError<z.infer<typeof createSubscriptionSchema>>(parsed, res);
+
     const subscription = await Subscription.create({
-      ...req.body,
+      ...parsed.data,
       user: (req as any).user._id,
     });
     
@@ -75,9 +108,9 @@ export const createSubscription = async (
 };
 
 export const getUserSubscriptions = async (
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction
+  req: Request,
+  res: Response,
+  next: NextFunction
 ) => {
   try {
     const userSubscription = await Subscription.find({
@@ -99,9 +132,9 @@ export const getUserSubscriptions = async (
 };
 
 export const updateSubscription = async (
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction
+  req: Request,
+  res: Response,
+  next: NextFunction
 ) => {
   try {
     if (!req.body) {
@@ -124,26 +157,7 @@ export const updateSubscription = async (
     }
 
     const parsed = updateSubscriptionSchema.safeParse(req.body);
-
-    if (!parsed.success) {
-      const issues = parsed.error.issues;
-
-      const errors: Record<string, string> = {};
-      for (const issue of issues) {
-        const field = issue.path[0];
-        if (typeof field === "string" && !errors[field]) {
-          errors[field] = issue.message;
-        }
-      }
-
-      const firstErrorMessage = issues[0]?.message || "Invalid input";
-
-      return res.status(400).json({
-        success: false,
-        message: firstErrorMessage,
-        errors,
-      });
-    }
+    handleValidationError<z.infer<typeof updateSubscriptionSchema>>(parsed, res) 
 
     const updatedData = {
       name,
@@ -181,9 +195,9 @@ export const updateSubscription = async (
 };
 
 export const cancelSubscription = async (
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction
+  req: Request,
+  res: Response,
+  next: NextFunction
 ) => {
   try {
     if (!req.body) {

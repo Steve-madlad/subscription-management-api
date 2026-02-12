@@ -1,11 +1,12 @@
 import bcrypt from "bcryptjs";
-import express from "express";
+import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
+import { z } from "zod";
 import { JWT_EXPIRES_IN, JWT_SECRET } from "../config/env.js";
 import User from "../models/users.model.js";
 import { AppError } from "../types/types.js";
-import { z } from "zod";
+import handleValidationError from "../utils/validation-guard.js";
 
 export const signUpSchema = z.object({
   name: z.string("Valid name is required").min(1, "Name is required"),
@@ -23,9 +24,9 @@ export const signInSchema = z.object({
 });
 
 export const signUp = async (
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction
+  req: Request,
+  res: Response,
+  next: NextFunction
 ) => {
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -39,26 +40,7 @@ export const signUp = async (
     const { name, email, password } = req.body;
 
     const parsed = signUpSchema.safeParse(req.body);
-
-    if (!parsed.success) {
-      const issues = parsed.error.issues;
-
-      const errors: Record<string, string> = {};
-      for (const issue of issues) {
-        const field = issue.path[0];
-        if (typeof field === "string" && !errors[field]) {
-          errors[field] = issue.message;
-        }
-      }
-
-      const firstErrorMessage = issues[0]?.message || "Invalid input";
-
-      return res.status(400).json({
-        success: false,
-        message: firstErrorMessage,
-        errors,
-      });
-    }
+    handleValidationError<z.infer<typeof signUpSchema>>(parsed, res);
 
     const existingUser = await User.findOne({ email });
 
@@ -81,7 +63,8 @@ export const signUp = async (
       { session }
     );
 
-    const { password: newpassword, ...userWithoutPassword } = newUser[0];
+    const createdUser = newUser[0].toObject();
+    const { password: usrPassword, __v, _id: id, ...user } = createdUser;
 
     const token = jwt.sign({ userId: newUser[0]._id }, JWT_SECRET, {
       expiresIn: JWT_EXPIRES_IN as jwt.SignOptions["expiresIn"],
@@ -90,20 +73,16 @@ export const signUp = async (
     await session.commitTransaction();
     session.endSession();
 
-    // res.cookie("AUTH", token, {
-    //   domain: "localhost",
-    //   path: "/",
-    // });
-
     res.status(201).json({
       success: true,
       message: "User created successfully",
       data: {
-        user: userWithoutPassword,
+        user: { id, ...user }, 
         token,
       },
     });
   } catch (error) {
+    console.log("error", error);
     await session.abortTransaction();
     session.endSession();
     next(error);
@@ -111,9 +90,9 @@ export const signUp = async (
 };
 
 export const signIn = async (
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction
+  req: Request,
+  res: Response,
+  next: NextFunction
 ) => {
   try {
     if (!req.body) {
@@ -124,26 +103,7 @@ export const signIn = async (
     const { email, password } = req.body;
 
     const parsed = signInSchema.safeParse(req.body);
-
-    if (!parsed.success) {
-      const issues = parsed.error.issues;
-
-      const errors: Record<string, string> = {};
-      for (const issue of issues) {
-        const field = issue.path[0];
-        if (typeof field === "string" && !errors[field]) {
-          errors[field] = issue.message;
-        }
-      }
-
-      const firstErrorMessage = issues[0]?.message || "Invalid input";
-
-      return res.status(400).json({
-        success: false,
-        message: firstErrorMessage,
-        errors,
-      });
-    }
+    handleValidationError<z.infer<typeof signInSchema>>(parsed, res);
 
     const existingUser = await User.findOne({ email });
 
@@ -164,12 +124,7 @@ export const signIn = async (
       expiresIn: JWT_EXPIRES_IN as jwt.SignOptions["expiresIn"],
     });
 
-    // res.cookie("AUTH", token, {
-    //   domain: "localhost",
-    //   path: "/",
-    // });
-
-    res.status(201).json({
+    res.status(200).json({
       success: true,
       message: "Login successful",
       data: {

@@ -7,13 +7,18 @@ import Subscription, {
 } from "../models/subscription.model.js";
 import sendReminderEmail from "../utils/send-reminder-email.js";
 
-const reminders = [10, 7, 5, 2, 1];
+const reminders: Record<string, Array<number>> = {
+  monthly: [10, 7, 5, 2, 1],
+  weekly: [2, 1],
+  daily: [4]
+};
 
 export const sendReminders = serve(
   async (context: WorkflowContext<unknown>) => {
     const { subscriptionId } = context.requestPayload as Record<string, string>;
 
     const subscription = await fetchSubscription(context, subscriptionId);
+    console.log("the subscription", subscription)
 
     if (!subscription || subscription.status !== "active") return;
 
@@ -25,21 +30,31 @@ export const sendReminders = serve(
       );
       return;
     }
-
-    for (const daysBefore of reminders) {
-      const reminderDate = renewalDate.subtract(daysBefore, "day");
+    // console.log("length:", reminders[subscription.frequency].length)
+    for (const timeBefore of reminders[subscription.frequency]) {
+      console.log({timeBefore})
+      const isDaily = subscription.frequency === "daily"
+      let reminderDate 
+      if (isDaily)
+        reminderDate = renewalDate.subtract(timeBefore, "hour")
+      else reminderDate = renewalDate.subtract(timeBefore, "day");
       const now = dayjs();
+      const logtext = isDaily ? `reminder ${timeBefore} hours before expiration` :          
+       `reminder ${timeBefore} days before expiration`
 
-      if (reminderDate.isAfter(now) || reminderDate.isSame(now, "day")) {
+      console.log({reminderDate})
+      console.log("is after now", reminderDate.isAfter(now));
+      
+      if (reminderDate.isAfter(now)) {
         await sleepUntilReminder(
           context,
-          `reminder ${daysBefore} days before`,
+          logtext,
           reminderDate
         );
 
         await triggerReminder(
           context,
-          `reminder ${daysBefore} days before`,
+          logtext,
           subscription
         );
       }

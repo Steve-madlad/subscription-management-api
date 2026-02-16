@@ -45,7 +45,7 @@ export const sendReminders = serve(
       console.log({reminderDate})
       console.log("is after now", reminderDate.isAfter(now));
       
-      if (reminderDate.isAfter(now)) {
+      if (reminderDate.isAfter(now) || reminderDate.isBefore(now)) {
         await sleepUntilReminder(
           context,
           logtext,

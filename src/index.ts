@@ -9,12 +9,21 @@ import authRouter from "./routes/auth.routes.js";
 import subscriptionRouter from "./routes/subscription.routes.js";
 import userRouter from "./routes/user.routes.js";
 import workflowRouter from "./routes/workfolw.routes.js";
+import cors from "cors";
 
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(arcjetMiddleware);
+
+app.use(cors({
+  origin: "http://localhost:5173", 
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  exposedHeaders: ["Authorization"]
+}));
+
 
 app.get("/", (req, res) => {
   res.send("Welcome to the subscription management API! Run along now.");

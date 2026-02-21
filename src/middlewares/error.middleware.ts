@@ -4,7 +4,7 @@ const errorMiddleware = (
   err: any,
   req: express.Request,
   res: express.Response,
-  next: express.NextFunction
+  next: express.NextFunction,
 ) => {
   try {
     let error = { ...err };

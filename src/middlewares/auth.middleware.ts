@@ -11,7 +11,7 @@ interface CustomJwtPayload extends JwtPayload {
 const authorize = async (
   req: express.Request,
   res: express.Response,
-  next: express.NextFunction
+  next: express.NextFunction,
 ) => {
   try {
     const { authorization } = req.headers;

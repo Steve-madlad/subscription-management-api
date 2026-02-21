@@ -120,7 +120,7 @@ export async function connectToDatabase(): Promise<mongoose.Mongoose> {
   try {
     cached!.conn = await cached!.promise;
     console.log(
-      `✅ MongoDB connected successfully (${NODE_ENV}) | readyState: ${mongoose.connection.readyState}`
+      `✅ MongoDB connected successfully (${NODE_ENV}) | readyState: ${mongoose.connection.readyState}`,
     );
   } catch (error) {
     console.error("❌ Failed to connect to MongoDB:", error);

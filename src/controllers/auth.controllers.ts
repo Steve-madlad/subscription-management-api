@@ -26,7 +26,7 @@ export const signInSchema = z.object({
 export const signUp = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -60,7 +60,7 @@ export const signUp = async (
           password: hashedPassword,
         },
       ],
-      { session }
+      { session },
     );
 
     const createdUser = newUser[0].toObject();
@@ -77,7 +77,7 @@ export const signUp = async (
       success: true,
       message: "User created successfully",
       data: {
-        user: { id, ...user }, 
+        user: { id, ...user },
         token,
       },
     });
@@ -92,7 +92,7 @@ export const signUp = async (
 export const signIn = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     if (!req.body) {
@@ -107,7 +107,6 @@ export const signIn = async (
 
     const existingUser = await User.findOne({ email });
 
-    
     if (!existingUser) {
       const error = new AppError("Invalid credentials", 401);
       throw error;

@@ -4,7 +4,7 @@ import express from "express";
 const arcjetMiddleware = async (
   req: express.Request,
   res: express.Response,
-  next: express.NextFunction
+  next: express.NextFunction,
 ) => {
   try {
     const decision = await aj.protect(req, { requested: 2 });

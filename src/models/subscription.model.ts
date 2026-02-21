@@ -41,10 +41,7 @@ const subscriptionSchema = new mongoose.Schema(
     paymentMethod: {
       type: String,
       required: true,
-      enum: [
-        "card",
-        "debit",
-      ],
+      enum: ["card", "debit"],
       trim: true,
     },
     status: {
@@ -77,7 +74,7 @@ const subscriptionSchema = new mongoose.Schema(
       index: true,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 subscriptionSchema.pre("save", function (next) {
@@ -92,7 +89,7 @@ subscriptionSchema.pre("save", function (next) {
     if (this.frequency) {
       this.renewalDate = new Date(this.startDate);
       this.renewalDate.setDate(
-        this.renewalDate.getDate() + renewalPeriods[this.frequency]
+        this.renewalDate.getDate() + renewalPeriods[this.frequency],
       );
     }
   } else if (this.renewalDate < new Date()) {

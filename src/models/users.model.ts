@@ -22,12 +22,12 @@ const userSchema = new mongoose.Schema(
       minlength: 6,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 type UserType = InferSchemaType<typeof userSchema>;
 export type UserDocument = mongoose.Document & UserType;
 
-const User = mongoose.model("User", userSchema)
+const User = mongoose.model("User", userSchema);
 
 export default User;

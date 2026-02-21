@@ -1,34 +1,44 @@
+import dayjs from "dayjs";
+
 export const generateEmailTemplate = ({
   name,
   subscriptionName,
-  daysLeft,
+  renewalDt,
   subscriptionType,
   subscriptionPrice,
 }: {
   name: string;
   subscriptionName: string;
-  daysLeft: number;
+  renewalDt: Date;
   subscriptionType: "daily" | "weekly" | "monthly" | "yearly";
   subscriptionPrice: number;
 }) => {
-  const reminders = [10, 7, 5, 2, 1, 0];
+  const dayReminders = [10, 7, 5, 2, 1];
+  const hourReminders = [4, 3];
 
-  console.log("left days", daysLeft);
+  const now = dayjs();
+  const renewalDate = dayjs(renewalDt);
 
-  if (!reminders.includes(daysLeft)) {
+  const daysLeft = renewalDate.diff(now, "day");
+  const hoursLeft = renewalDate.diff(now, "hour");
+
+  console.log("Days left:", daysLeft, "Hours left:", hoursLeft);
+
+  const isDayReminder = dayReminders.includes(daysLeft);
+  const isHourReminder = hourReminders.includes(hoursLeft);
+
+  if (!isDayReminder && !isHourReminder) {
     throw new Error(
-      `Invalid daysLeft value: ${daysLeft}. Must be one of: ${reminders.join(
-        ", "
-      )}`
+      `Invalid reminder time. Must be one of: ${[...dayReminders, ...hourReminders].join(", ")}`,
     );
   }
 
   let subject = "";
 
-  if (daysLeft === 0) {
-    subject = `⚠️ Your ${subscriptionName} subscription will expire in 24 hours. Don't forget to renew!`;
+  if (isHourReminder) {
+    subject = `⚠️ Your ${subscriptionName} subscription will expire in 4 hours. Don't forget to renew!`;
   } else if (daysLeft === 1) {
-    subject = `⚠️ Your ${subscriptionName} subscription ends tomorrow – Renew now`;
+    subject = `⚠️ Your ${subscriptionName} subscription ends tomorrow - Renew now`;
   } else if (daysLeft <= 3) {
     subject = `⏳ Only ${daysLeft} days left to renew your ${subscriptionName} subscription`;
   } else {
@@ -105,13 +115,13 @@ export const generateEmailTemplate = ({
 
         <p>
           We wanted to remind you that your <span class="highlight">${subscriptionType}</span> subscription to <span class="highlight">${subscriptionName}</span> will expire in <span class="highlight">${
-    daysLeft == 0 ? "24 hours" : daysLeft
-  } day${daysLeft !== 1 ? "s" : ""}</span>.
+            daysLeft == 0 ? "24 hours" : daysLeft
+          } day${daysLeft !== 1 ? "s" : ""}</span>.
         </p>
 
         <p>
           The renewal cost is <span class="highlight">$${subscriptionPrice.toFixed(
-            2
+            2,
           )}</span>.
         </p>
 

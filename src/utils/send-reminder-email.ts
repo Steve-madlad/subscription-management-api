@@ -1,4 +1,3 @@
-import dayjs from "dayjs";
 import transporter, { accountInfo } from "../config/nodemailer.js";
 import { SubscriptionWithPartialUser } from "../controllers/workflow.controllers.js";
 import { generateEmailTemplate } from "./email-templates.js";
@@ -17,7 +16,7 @@ export const sendReminderEmail = async ({
     subscriptionName: subscription.name,
     subscriptionType: subscription.frequency,
     subscriptionPrice: subscription.price,
-    daysLeft: dayjs(subscription.renewalDate).diff(dayjs(), "day"),
+    renewalDt: subscription.renewalDate as Date,
   };
 
   const template = generateEmailTemplate(mailInfo);

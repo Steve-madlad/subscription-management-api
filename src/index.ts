@@ -12,17 +12,18 @@ import workflowRouter from "./routes/workfolw.routes.js";
 import cors from "cors";
 
 const app = express();
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
-app.use(arcjetMiddleware);
-
 app.use(cors({
   origin: "http://localhost:5173", 
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
   allowedHeaders: ["Content-Type", "Authorization"],
   exposedHeaders: ["Authorization"]
 }));
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+app.use(cookieParser());
+app.use(arcjetMiddleware);
+
 
 
 app.get("/", (req, res) => {

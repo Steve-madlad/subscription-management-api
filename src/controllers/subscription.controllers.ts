@@ -15,7 +15,7 @@ const updateSubscriptionSchema = z.object({
   currency: z.enum(["USD", "ETB"], "Invalid currency option").optional(),
   frequency: z.enum(
     ["daily", "weekly", "monthly", "yearly"],
-    "Invalid frequency option"
+    "Invalid frequency option",
   ),
   category: z.enum(
     [
@@ -28,39 +28,37 @@ const updateSubscriptionSchema = z.object({
       "finance",
       "other",
     ],
-    "Invalid category option"
+    "Invalid category option",
   ),
 });
 
-const createSubscriptionSchema = z.object({
-  name: z.string("Name must be a string"),
-  price: z
-    .number("Price must be a number")
-    .min(1, "Price must be greater than 0"),
-  currency: z.enum(["USD", "ETB"], "Invalid currency option").optional(),
-  frequency: z.enum(
-    ["daily", "weekly", "monthly", "yearly"],
-    "Invalid frequency option"
-  ),
-  category: z.enum(
-    [
-      "sports",
-      "news",
-      "politics",
-      "entertainment",
-      "lifestyle",
-      "technology",
-      "finance",
-      "other",
-    ],
-    "Invalid category option"
-  ),
-  paymentMethod: z.enum(
-    [
-      "card",
-      "debit",
-    ]),
-}).strip();
+const createSubscriptionSchema = z
+  .object({
+    name: z.string("Name must be a string"),
+    price: z
+      .number("Price must be a number")
+      .min(1, "Price must be greater than 0"),
+    currency: z.enum(["USD", "ETB"], "Invalid currency option").optional(),
+    frequency: z.enum(
+      ["daily", "weekly", "monthly", "yearly"],
+      "Invalid frequency option",
+    ),
+    category: z.enum(
+      [
+        "sports",
+        "news",
+        "politics",
+        "entertainment",
+        "lifestyle",
+        "technology",
+        "finance",
+        "other",
+      ],
+      "Invalid category option",
+    ),
+    paymentMethod: z.enum(["card", "debit"]),
+  })
+  .strip();
 
 const cancelSubscriptionSchema = z.object({
   status: z.enum(["active", "cancelled", "expired"], "Invalid status option"),
@@ -69,7 +67,7 @@ const cancelSubscriptionSchema = z.object({
 export const createSubscription = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     if (!req.body) {
@@ -78,13 +76,16 @@ export const createSubscription = async (
     }
 
     const parsed = createSubscriptionSchema.safeParse(req.body);
-    handleValidationError<z.infer<typeof createSubscriptionSchema>>(parsed, res);
+    handleValidationError<z.infer<typeof createSubscriptionSchema>>(
+      parsed,
+      res,
+    );
 
     const subscription = await Subscription.create({
       ...parsed.data,
       user: (req as any).user._id,
     });
-    
+
     const { workflowRunId } = await workflowClient.trigger({
       url: `${SERVER_URL}/workflows/subscription/reminder`,
       body: {
@@ -110,7 +111,7 @@ export const createSubscription = async (
 export const getUserSubscriptions = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const userSubscription = await Subscription.find({
@@ -134,7 +135,7 @@ export const getUserSubscriptions = async (
 export const updateSubscription = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     if (!req.body) {
@@ -157,7 +158,10 @@ export const updateSubscription = async (
     }
 
     const parsed = updateSubscriptionSchema.safeParse(req.body);
-    handleValidationError<z.infer<typeof updateSubscriptionSchema>>(parsed, res) 
+    handleValidationError<z.infer<typeof updateSubscriptionSchema>>(
+      parsed,
+      res,
+    );
 
     const updatedData = {
       name,
@@ -174,13 +178,13 @@ export const updateSubscription = async (
         status: { $ne: "cancelled" },
       },
       { $set: updatedData },
-      { new: true, runValidators: true }
+      { new: true, runValidators: true },
     );
 
     if (!updatedSubscription) {
       const error = new AppError(
         "Subscription not found or is ineligible for update",
-        400
+        400,
       );
       throw error;
     }
@@ -197,16 +201,10 @@ export const updateSubscription = async (
 export const cancelSubscription = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
-    if (!req.body) {
-      const error = new AppError("Subscription details are required", 400);
-      throw error;
-    }
-
     const { id } = req.params;
-    const { status } = req.body;
 
     if (!id) {
       const error = new AppError("Subscription id is required", 400);
@@ -249,22 +247,23 @@ export const cancelSubscription = async (
       },
       {
         $set: {
-          status,
+          status: "cancelled",
         },
       },
-      { new: true, runValidators: true }
+      { new: true, runValidators: true },
     );
 
     if (!updatedSubscription) {
       const error = new AppError(
         "Subscription not found or is ineligible for update",
-        400
+        400,
       );
       throw error;
     }
 
     res.status(200).json({
       success: true,
+      message: "Subscription cancelled successfully",
       data: updatedSubscription,
     });
   } catch (error) {

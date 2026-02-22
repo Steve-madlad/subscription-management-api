@@ -24,6 +24,28 @@ export const getUsers = async (
   }
 };
 
+export const getCurrentUser = async (
+  req: express.Request,
+  res: express.Response,
+  next: express.NextFunction,
+) => {
+  try {
+    const user = (req as any).user;
+
+    if (!user) {
+      const error = new AppError("User not found", 404);
+      throw error;
+    }
+
+    res.status(200).json({
+      success: true,
+      data: user,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const getUser = async (
   req: express.Request,
   res: express.Response,

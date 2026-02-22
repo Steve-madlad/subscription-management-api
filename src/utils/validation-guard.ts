@@ -4,7 +4,7 @@ import { ZodSafeParseResult } from "zod";
 export default function handleValidationError<T>(
   parsed: ZodSafeParseResult<T>,
   res: Response,
-) {
+): asserts parsed is { success: true; data: T } {
   if (!parsed.success) {
     const issues = parsed.error.issues;
 
@@ -18,7 +18,7 @@ export default function handleValidationError<T>(
 
     const firstErrorMessage = issues[0]?.message || "Invalid input";
 
-    return res.status(400).json({
+    res.status(400).json({
       success: false,
       message: firstErrorMessage,
       errors,

@@ -60,8 +60,17 @@ const createSubscriptionSchema = z
   })
   .strip();
 
-const cancelSubscriptionSchema = z.object({
-  status: z.enum(["active", "cancelled", "expired"], "Invalid status option"),
+const getSubscriptionQuerySchema = z.object({
+  frequency: z.enum(["daily", "weekly", "monthly", "yearly"]).optional(),
+  minPrice: z.coerce
+    .number()
+    .min(0, "Price must be a positive number")
+    .optional(),
+  maxPrice: z.coerce
+    .number()
+    .min(0, "Price must be a positive number")
+    .optional(),
+  status: z.enum(["active", "expired", "cancelled"]).optional(),
 });
 
 export const createSubscription = async (
@@ -114,9 +123,28 @@ export const getUserSubscriptions = async (
   next: NextFunction,
 ) => {
   try {
-    const userSubscription = await Subscription.find({
+    const parsed = getSubscriptionQuerySchema.safeParse(req.query);
+    handleValidationError<z.infer<typeof getSubscriptionQuerySchema>>(
+      parsed,
+      res,
+    );
+
+    const { frequency, minPrice, maxPrice, status } = parsed.data;
+
+    const filter: any = {
       user: (req as any).user._id,
-    });
+      ...(frequency && { frequency }),
+      ...(status && { status }),
+    };
+
+    if (minPrice !== undefined || maxPrice !== undefined) {
+      filter.price = {
+        ...(minPrice !== undefined && { $gte: minPrice }),
+        ...(maxPrice !== undefined && { $lte: maxPrice }),
+      };
+    }
+
+    const userSubscription = await Subscription.find(filter);
 
     if (!userSubscription) {
       const error = new AppError("Subscription not found", 404);

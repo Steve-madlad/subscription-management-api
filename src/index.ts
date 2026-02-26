@@ -28,7 +28,15 @@ app.use(cookieParser());
 app.use(arcjetMiddleware);
 
 app.get("/", (req, res) => {
-  res.send("Welcome to the subscription management API! Run along now.");
+  res.send(
+    "Welcome to the subscription management API! Check out the docs at https://swagster.vercel.app/api/docs/subscription-api",
+  );
+});
+
+app.get("/api/v1", (req, res) => {
+  res.send(
+    "Welcome to the subscription management API! Check out the docs at https://swagster.vercel.app/api/docs/subscription-api",
+  );
 });
 
 app.use(async (req, res, next) => {

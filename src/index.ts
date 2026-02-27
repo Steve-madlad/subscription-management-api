@@ -15,7 +15,7 @@ import dayjs from "dayjs";
 const app = express();
 app.use(
   cors({
-    origin: "http://swagster.vercel.app",
+    origin: "https://swagster.vercel.app",
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
     exposedHeaders: ["Authorization"],

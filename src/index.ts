@@ -1,4 +1,5 @@
 import cookieParser from "cookie-parser";
+import cors from "cors";
 import express from "express";
 import { PORT, SERVER_URL } from "./config/env.js";
 import { connectToDatabase } from "./database/mongodb.js";
@@ -9,13 +10,11 @@ import authRouter from "./routes/auth.routes.js";
 import subscriptionRouter from "./routes/subscription.routes.js";
 import userRouter from "./routes/user.routes.js";
 import workflowRouter from "./routes/workfolw.routes.js";
-import cors from "cors";
-import dayjs from "dayjs";
 
 const app = express();
 app.use(
   cors({
-    origin: "http://swagster.vercel.app",
+    origin: "https://swagster.vercel.app",
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
     exposedHeaders: ["Authorization"],

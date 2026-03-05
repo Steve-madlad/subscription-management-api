@@ -45,11 +45,8 @@ export const sendReminders = serve(
       console.log({ reminderDate });
       console.log("is after now", reminderDate.isAfter(now));
 
-      if (reminderDate.isAfter(now)) {
-        await sleepUntilReminder(context, logtext, reminderDate);
-      } else {
-        await triggerReminder(context, logtext, subscription);
-      }
+      await sleepUntilReminder(context, logtext, reminderDate);
+      await triggerReminder(context, logtext, subscription);
     }
   },
 );

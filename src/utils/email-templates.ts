@@ -22,8 +22,6 @@ export const generateEmailTemplate = ({
   const daysLeft = renewalDate.diff(now, "day");
   const hoursLeft = renewalDate.diff(now, "hour");
 
-  console.log("Days left:", daysLeft, "Hours left:", hoursLeft);
-
   const isDayReminder = dayReminders.includes(daysLeft);
   const isHourReminder = hourReminders.includes(hoursLeft);
 
@@ -33,112 +31,154 @@ export const generateEmailTemplate = ({
     );
   }
 
-  let subject = "";
+  // Logic for dynamic time strings
+  const timeRemainingStr = isHourReminder 
+    ? `${hoursLeft} hour${hoursLeft > 1 ? "s" : ""}` 
+    : `${daysLeft} day${daysLeft > 1 ? "s" : ""}`;
 
+  // Subject line logic
+  let subject = "";
   if (isHourReminder) {
-    subject = `⚠️ Your ${subscriptionName} subscription will expire in 4 hours. Don't forget to renew!`;
+    subject = `⚡ Final Call: ${subscriptionName} expires in ${hoursLeft} hours!`;
   } else if (daysLeft === 1) {
-    subject = `⚠️ Your ${subscriptionName} subscription ends tomorrow - Renew now`;
-  } else if (daysLeft <= 3) {
-    subject = `⏳ Only ${daysLeft} days left to renew your ${subscriptionName} subscription`;
+    subject = `⏳ Tomorrow: Your ${subscriptionName} subscription expires`;
   } else {
-    subject = `Reminder: ${subscriptionName} subscription ends in ${daysLeft} days`;
+    subject = `Reminder: ${daysLeft} days until your ${subscriptionName} renewal`;
   }
 
   const body = `
-    <style>
-      body {
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        background-color: #f9f9f9;
-        margin: 0;
-        padding: 0;
-      }
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <style>
+        body {
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+          background-color: #f4f7f9;
+          margin: 0;
+          padding: 40px 20px;
+        }
+        .email-container {
+          max-width: 550px;
+          margin: auto;
+          background-color: #ffffff;
+          border-radius: 16px;
+          overflow: hidden;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+          border: 1px solid #eef2f5;
+        }
+        .header {
+          background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+          padding: 10px 20px;
+          text-align: center;
+          color: #ffffff;
+        }
+        .header h1 {
+          margin: 0;
+          font-size: 20px;
+          font-weight: 700;
+          letter-spacing: -0.5px;
+        }
+        .content {
+          padding: 40px 35px;
+          color: #1e293b;
+          line-height: 1.6;
+        }
+        .greeting {
+          font-size: 18px;
+          font-weight: 600;
+          margin-bottom: 16px;
+        }
+        .sub-details {
+          background-color: #f8fafc;
+          border-radius: 12px;
+          padding: 20px;
+          margin: 25px 0;
+          border: 1px border #e2e8f0;
+        }
+        .detail-row {
+          display: flex;
+          justify-content: space-between;
+          margin-bottom: 8px;
+          font-size: 15px;
+        }
+        .detail-row:last-child { margin-bottom: 0; }
+        .label { color: #64748b; }
+        .value { font-weight: 600; color: #0f172a; }
 
-      .email-container {
-        max-width: 600px;
-        margin: auto;
-        background-color: #ffffff;
-        border: 1px solid #e0e0e0;
-        border-radius: 8px;
-        overflow: hidden;
-        box-shadow: 0 0 10px rgba(0,0,0,0.05);
-      }
+        .cta-wrapper {
+          text-align: center;
+          margin-top: 30px;
+        }
+        .cta-button {
+          display: inline-block;
+          padding: 14px 32px;
+          background-color: #2563eb;
+          color: #ffffff !important;
+          text-decoration: none;
+          border-radius: 8px;
+          font-weight: 600;
+          font-size: 16px;
+          transition: background-color 0.2s;
+        }
+        .footer {
+          text-align: center;
+          padding: 25px;
+          font-size: 13px;
+          color: #94a3b8;
+          background-color: #ffffff;
+        }
+        .urgency-badge {
+          display: inline-block;
+          padding: 4px 12px;
+          background-color: #fee2e2;
+          color: #dc2626;
+          border-radius: 20px;
+          font-size: 12px;
+          font-weight: 700;
+          text-transform: uppercase;
+          margin-bottom: 15px;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="email-container">
+        <div class="header">
+          <h1>Renewal Reminder</h1>
+        </div>
+        <div class="content">
+          <div class="urgency-badge">${timeRemainingStr} remaining</div>
+          <p class="greeting">Hi ${name},</p>
+          <p>Time flies! Your subscription to <strong>${subscriptionName}</strong> is coming to an end soon. Don't lose access to your premium features.</p>
+          
+          <div class="sub-details">
+            <div class="detail-row">
+              <span class="label">Plan</span>
+              <span class="value">${subscriptionType.charAt(0).toUpperCase() + subscriptionType.slice(1)}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Renewal Price</span>
+              <span class="value">$${subscriptionPrice.toFixed(2)}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Expires In</span>
+              <span class="value">${timeRemainingStr}</span>
+            </div>
+          </div>
 
-      .header {
-        background-color: #2c3e50;
-        color: #ffffff;
-        padding: 20px;
-        text-align: center;
-      }
+          <p>Click the button below to renew securely and keep things running smoothly.</p>
 
-      .content {
-        padding: 30px 20px;
-        color: #333;
-      }
-
-      .content p {
-        line-height: 1.6;
-        margin-bottom: 15px;
-      }
-
-      .highlight {
-        font-weight: bold;
-        color: #2c3e50;
-      }
-
-      .cta-button {
-        display: inline-block;
-        margin-top: 20px;
-        padding: 12px 20px;
-        background-color: #3498db;
-        color: white;
-        text-decoration: none;
-        border-radius: 4px;
-        font-weight: bold;
-      }
-
-      .footer {
-        background-color: #2c3e50;
-        color: #ffffff;
-        text-align: center;
-        padding: 15px;
-        font-size: 14px;
-      }
-    </style>
-
-    <div class="email-container">
-      <div class="header">
-        <h2>Upcoming Expiration Notice</h2>
+          <div class="cta-wrapper">
+            <a href="#" class="cta-button">Renew Subscription</a>
+          </div>
+        </div>
+        <div class="footer">
+          &copy; ${new Date().getFullYear()} Teffsauce. All rights reserved.<br/>
+          If you have any questions, just reply to this email.
+        </div>
       </div>
-      <div class="content">
-        <p>Hi ${name},</p>
-
-        <p>
-          We wanted to remind you that your <span class="highlight">${subscriptionType}</span> subscription to <span class="highlight">${subscriptionName}</span> will expire in <span class="highlight">${
-            daysLeft == 0 ? "24 hours" : daysLeft
-          } day${daysLeft !== 1 ? "s" : ""}</span>.
-        </p>
-
-        <p>
-          The renewal cost is <span class="highlight">$${subscriptionPrice.toFixed(
-            2,
-          )}</span>.
-        </p>
-
-        <p>
-          To continue enjoying uninterrupted service, please make sure to renew your subscription before it expires.
-        </p>
-
-        <a href="#" class="cta-button">Renew Now</a>
-
-        <p>If you have any questions or need assistance, feel free to reply to this email.</p>
-
-        <p>Best regards,<br/>The Teffsauce Team</p>
-      </div>
-      <div class="footer">
-        &copy; ${new Date().getFullYear()} Teffsauce, All rights reserved.
-      </div>
-    </div>
+    </body>
+    </html>
   `;
 
   return { subject, body };

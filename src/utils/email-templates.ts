@@ -29,7 +29,7 @@ export const generateEmailTemplate = ({
 
   if (!isDayReminder && !isHourReminder) {
     throw new Error(
-      `Invalid reminder time. Must be one of: ${[...dayReminders, ...hourReminders].join(", ")}`,
+      `Invalid reminder time. Must be one of: ${[...dayReminders].join(", ")} days or ${[...hourReminders].join(", ")} hours`,
     );
   }
 

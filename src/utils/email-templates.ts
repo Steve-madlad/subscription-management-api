@@ -115,8 +115,8 @@ export const generateEmailTemplate = ({
 
         <p>
           We wanted to remind you that your <span class="highlight">${subscriptionType}</span> subscription to <span class="highlight">${subscriptionName}</span> will expire in <span class="highlight">${
-            daysLeft == 0 ? "24 hours" : daysLeft
-          } day${daysLeft !== 1 ? "s" : ""}</span>.
+            isHourReminder  ? hoursLeft : daysLeft
+          } day${daysLeft > 1 ? "s" : ""}</span>.
         </p>
 
         <p>
